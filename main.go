@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"github.com/jwt-project/initializers"
+)
 
+func init() {
+	initializers.LoadEnvVariables()
+}
 func main() {
 
-	fmt.Println("Hi Mani2")
 }
