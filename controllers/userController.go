@@ -13,7 +13,7 @@ func SignUp(c *gin.Context) {
 
 	// get The Email and password of request body
 	var body struct {
-		Email    string
+		Email    string `gorm:"unique"`
 		Password string
 	}
 
