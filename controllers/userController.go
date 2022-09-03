@@ -109,8 +109,21 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	//send it back
+	//send it back as normal token instead of cookie
+	//c.JSON(http.StatusOK, gin.H{
+	//	"token": tokenString,
+	//})
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
+
 	c.JSON(http.StatusOK, gin.H{
-		"token": tokenString,
+		"token": "Cookie Created",
 	})
+}
+
+func Validate(c *gin.Context) {
+c.JSON(http.StatusOK,gin.H{
+	"message":"This user is Logged In",
+})
 }
