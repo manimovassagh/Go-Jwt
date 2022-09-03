@@ -8,8 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/jwt-project/initializers"
-	"github.com/jwt-project/models"
 )
 
 func RequireAuth(c *gin.Context) {
@@ -22,8 +20,8 @@ func RequireAuth(c *gin.Context) {
 
 	}
 
-	//Decode/validate cookie
-	// Parse takes the token string and a function for looking up the key. The latter is especially
+	// sample token string taken from the New example
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -31,29 +29,21 @@ func RequireAuth(c *gin.Context) {
 		}
 
 		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte(os.Getenv("SECRET")), nil
+		return os.Getenv("SECRET"), nil
 	})
 
+	if err != nil {
+		fmt.Println("There is error in line 36")
+	}
+
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-
-		//check the expiration
-		if float64(time.Now().Unix()) >["exp"].(float64){
-			c.AbortWithStatus(http.StatusUnauthorized)
+		if float64(time.Now().Unix()) > claims["exp"].(float64) {
+			fmt.Println("It is expired")
 		}
-		//find the user with token sub
-		var user models.User
-		initializers.DB.First(&user,claims["sub"])
-		if user.ID==0{
-
-		}
-		//Attach to requests
-		//continue
-
 		c.Next()
 		fmt.Println(claims["foo"], claims["nbf"])
 	} else {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
-	
 }
