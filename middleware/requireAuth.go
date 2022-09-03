@@ -8,13 +8,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jwt-project/initializers"
+	"github.com/jwt-project/models"
 )
 
 func RequireAuth(c *gin.Context) {
 	fmt.Println("In middleware")
 
 	//Get The cookie from request
-	tokenString, err := c.Cookie("Autorization")
+	tokenString, err := c.Cookie("Authorization")
 	if err != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 
@@ -28,20 +30,27 @@ func RequireAuth(c *gin.Context) {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return os.Getenv("SECRET"), nil
+		return []byte(os.Getenv("SECRET")), nil
 	})
 
 	if err != nil {
-		fmt.Println("There is error in line 36")
+		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			fmt.Println("It is expired")
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
+
+		var user models.User
+		initializers.DB.First(&user, claims["sub"])
+
+		if user.ID == 0 {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+		c.Set("user", user)
 		c.Next()
-		fmt.Println(claims["foo"], claims["nbf"])
+
 	} else {
 		c.AbortWithStatus(http.StatusUnauthorized)
 	}
