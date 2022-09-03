@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -44,7 +45,8 @@ func SignUp(c *gin.Context) {
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create user",
+			"error":          "Failed to create user",
+			"reson of error": "Duplicate Email is not acceptable",
 		})
 		return
 	}
@@ -103,6 +105,7 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to create token",
 		})
+		fmt.Println(err)
 		return
 	}
 

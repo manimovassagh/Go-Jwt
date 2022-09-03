@@ -1,7 +1,9 @@
 package initializers
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -12,7 +14,7 @@ func LoadEnvVariables() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// port := os.Getenv("SECRET")
-	// fmt.Println(port)
+	port := os.Getenv("SECRET")
+	fmt.Println(port)
 
 }
